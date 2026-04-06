@@ -29,10 +29,15 @@ export interface UpdateUserRequest {
   password?: string
 }
 
+export interface AuthResponse {
+  user: User
+  token: string
+}
+
 export const userService = {
   register: (data: RegisterRequest) => api.post<User>('/auth/register', data),
 
-  login: (data: LoginRequest) => api.post<User>('/auth/login', data),
+  login: (data: LoginRequest) => api.post<AuthResponse>('/auth/login', data),
 
   getProfile: () => api.get<User>('/users/me'),
 
