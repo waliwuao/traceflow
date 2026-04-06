@@ -1,0 +1,104 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME_BE: traceflow-backend
+  IMAGE_NAME_FE: traceflow-frontend
+
+jobs:
+  backend-ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Build with Maven
+        run: mvn clean compile -DskipTests
+
+      - name: Run tests
+        run: mvn test
+
+      - name: Build Docker image (backend)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        run: |
+          docker build -t ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME_BE }}:${{ github.sha }} ./backend
+
+      - name: Push Docker image (backend)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push to registry (backend)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME_BE }}:${{ github.sha }}
+          docker tag ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME_BE }}:${{ github.sha }} \
+            ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME_BE }}:latest
+          docker push ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME_BE }}:latest
+
+  frontend-ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          working-directory: ./frontend
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test -- --run
+
+      - name: Build
+        run: npm run build
+
+      - name: Build Docker image (frontend)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        run: docker build -t ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME_FE }}:${{ github.sha }} ./frontend
+
+      - name: Push Docker image (frontend)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push to registry (frontend)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME_FE }}:${{ github.sha }}
+          docker tag ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME_FE }}:${{ github.sha }} \
+            ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME_FE }}:latest
+          docker push ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME_FE }}:latest

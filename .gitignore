@@ -1,0 +1,65 @@
+# Dependencies
+**/*.class
+**/*.jar
+**/*.war
+**/*.ear
+**/*.rar
+**/*.tar.gz
+**/*.zip
+
+# Build
+**/target/
+**/build/
+**/dist/
+**/.gradle/
+**/bin/
+**/*.log
+
+# IDE
+**/.idea/
+**/*.iml
+**/.vscode/
+**/.settings/
+**/.project
+**/.classpath
+**/.factorypath
+**/.recommenders/
+**/.sts4/
+
+# OS
+**/.DS_Store
+**/Thumbs.db
+**/*.swp
+**/*.swo
+**/*~
+**/.directory
+
+# Logs
+**/*.log
+**/logs/
+
+# Test
+**/test-output/
+**/surefire-reports/
+**/coverage/
+
+# Environment
+**/.env
+**/.env.*
+**/secrets/
+**/.secrets/
+
+# Docker
+**/.dockerignore
+
+# Node
+**/node_modules/
+**/.npm
+**/.eslintcache
+**/.prettiercache
+
+# Misc
+**/*.bak
+**/*.tmp
+**/.cache/
+**/*.tmp
