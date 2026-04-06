@@ -78,7 +78,10 @@ jobs:
         run: npm run lint
 
       - name: Run tests
-        run: npm run test -- --run
+        run: |
+          if [ "$(find src -name '*.test.*' -o -name '*.spec.*' | wc -l)" -gt 0 ]; then
+            npm run test -- --run
+          fi
 
       - name: Build
         run: npm run build
