@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { projectGroupService } from '@/services/projectGroupService'
 import { useAuthStore } from '@/stores/authStore'
+import type { ProjectGroup, MemberInfo } from '@/services/projectGroupService'
 
 export default function ProjectGroupsPage() {
   const queryClient = useQueryClient()
@@ -43,7 +44,7 @@ export default function ProjectGroupsPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {groupsQuery.data?.data?.map((group) => (
+        {groupsQuery.data?.data?.map((group: ProjectGroup) => (
           <GroupCard key={group.id} group={group} />
         ))}
       </div>
@@ -94,7 +95,7 @@ export default function ProjectGroupsPage() {
                   className="w-full rounded-md border border-input px-3 py-2"
                 >
                   <option value="">无</option>
-                  {groupsQuery.data?.data?.map((g) => (
+                  {groupsQuery.data?.data?.map((g: ProjectGroup) => (
                     <option key={g.id} value={g.id}>
                       {g.name}
                     </option>
@@ -125,7 +126,7 @@ export default function ProjectGroupsPage() {
   )
 }
 
-function GroupCard({ group }: { group: any }) {
+function GroupCard({ group }: { group: ProjectGroup }) {
   return (
     <div className="rounded-lg border p-6">
       <h3 className="text-lg font-semibold">{group.name}</h3>
@@ -134,7 +135,7 @@ function GroupCard({ group }: { group: any }) {
         <div className="mt-4 space-y-2">
           <p className="text-xs font-medium text-muted-foreground">子项目组</p>
           <div className="flex flex-wrap gap-1">
-            {group.children.map((child: any) => (
+            {group.children.map((child: ProjectGroup) => (
               <Link
                 key={child.id}
                 to={`/groups/${child.id}`}
@@ -150,7 +151,7 @@ function GroupCard({ group }: { group: any }) {
         <div className="mt-4 flex items-center gap-2">
           <p className="text-xs text-muted-foreground">成员</p>
           <div className="flex -space-x-2">
-            {group.members.slice(0, 5).map((member: any) => (
+            {group.members.slice(0, 5).map((member: MemberInfo) => (
               <Link
                 key={member.id}
                 to={`/profile/${member.id}`}

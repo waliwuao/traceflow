@@ -1,15 +1,17 @@
+import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { useQuery } from '@tanstack/react-query'
 import { blogService } from '@/services/blogService'
-import { useComment } from '@/hooks/useComment'
+import { useCommentsByBlogId, useComment } from '@/hooks/useComment'
+import type { Comment } from '@/services/commentService'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 
 export default function BlogDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const { getCommentsByBlogId, create, isCreateLoading } = useComment()
+  const { create, isCreateLoading } = useComment()
   const [commentContent, setCommentContent] = useState('')
 
   const blogQuery = useQuery({
@@ -18,11 +20,7 @@ export default function BlogDetailPage() {
     enabled: !!id,
   })
 
-  const commentsQuery = useQuery({
-    queryKey: ['comments', id],
-    queryFn: () => getCommentsByBlogId(Number(id)),
-    enabled: !!id,
-  })
+  const commentsQuery = useCommentsByBlogId(Number(id))
 
   const handleSubmitComment = (e: React.FormEvent) => {
     e.preventDefault()
@@ -88,7 +86,7 @@ export default function BlogDetailPage() {
         </form>
 
         <div className="space-y-4">
-          {commentsQuery.data?.data?.map((comment) => (
+          {commentsQuery.data?.data?.map((comment: Comment) => (
             <CommentItem key={comment.id} comment={comment} />
           ))}
         </div>
@@ -97,7 +95,7 @@ export default function BlogDetailPage() {
   )
 }
 
-function CommentItem({ comment }: { comment: any }) {
+function CommentItem({ comment }: { comment: Comment }) {
   return (
     <div className="space-y-2 rounded-lg border p-4">
       <div className="flex items-center gap-2">
@@ -109,7 +107,7 @@ function CommentItem({ comment }: { comment: any }) {
       <p className="text-sm">{comment.content}</p>
       {comment.replies && comment.replies.length > 0 && (
         <div className="ml-4 space-y-2 border-l-2 border-border pl-4">
-          {comment.replies.map((reply: any) => (
+          {comment.replies.map((reply: Comment) => (
             <CommentItem key={reply.id} comment={reply} />
           ))}
         </div>
@@ -117,5 +115,3 @@ function CommentItem({ comment }: { comment: any }) {
     </div>
   )
 }
-
-import { useState } from 'react'

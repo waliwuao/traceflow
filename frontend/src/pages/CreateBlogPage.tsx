@@ -5,11 +5,9 @@ import remarkGfm from 'remark-gfm'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { blogService } from '@/services/blogService'
 import { projectGroupService } from '@/services/projectGroupService'
-import { useAuthStore } from '@/stores/authStore'
 
 export default function CreateBlogPage() {
   const navigate = useNavigate()
-  const { user } = useAuthStore()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [selectedGroups, setSelectedGroups] = useState<number[]>([])

@@ -1,31 +1,28 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useMutation } from '@tanstack/react-query'
-import { userService } from '@/services/userService'
-import { useAuthStore } from '@/stores/authStore'
+import { useLogin } from '@/hooks/useUser'
 
 export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const navigate = useNavigate()
-  const setAuth = useAuthStore((state) => state.setAuth)
-
-  const loginMutation = useMutation({
-    mutationFn: () => userService.login({ username, password }),
-    onSuccess: (response) => {
-      setAuth(response.data, 'token')
-      navigate('/')
-    },
-    onError: () => {
-      setError('用户名或密码错误')
-    },
-  })
+  const { login, isLoginLoading } = useLogin()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    loginMutation.mutate()
+    login(
+      { username, password },
+      {
+        onSuccess: () => {
+          navigate('/')
+        },
+        onError: () => {
+          setError('用户名或密码错误')
+        },
+      }
+    )
   }
 
   return (
@@ -64,10 +61,10 @@ export default function LoginPage() {
         </div>
         <button
           type="submit"
-          disabled={loginMutation.isPending}
+          disabled={isLoginLoading}
           className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
-          {loginMutation.isPending ? '登录中...' : '登录'}
+          {isLoginLoading ? '登录中...' : '登录'}
         </button>
       </form>
       <p className="text-center text-sm text-muted-foreground">

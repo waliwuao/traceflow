@@ -6,26 +6,26 @@ import {
   type AddMembersRequest,
 } from '@/services/projectGroupService'
 
+export const useGroupById = (id: number) =>
+  useQuery({
+    queryKey: ['projectGroup', id],
+    queryFn: () => projectGroupService.getById(id),
+  })
+
+export const useRootGroups = () =>
+  useQuery({
+    queryKey: ['projectGroups', 'roots'],
+    queryFn: () => projectGroupService.getRoots(),
+  })
+
+export const useChildGroups = (parentId: number) =>
+  useQuery({
+    queryKey: ['projectGroups', 'children', parentId],
+    queryFn: () => projectGroupService.getByParentId(parentId),
+  })
+
 export const useProjectGroup = () => {
   const queryClient = useQueryClient()
-
-  const getGroupById = (id: number) =>
-    useQuery({
-      queryKey: ['projectGroup', id],
-      queryFn: () => projectGroupService.getById(id),
-    })
-
-  const getRootGroups = () =>
-    useQuery({
-      queryKey: ['projectGroups', 'roots'],
-      queryFn: () => projectGroupService.getRoots(),
-    })
-
-  const getChildGroups = (parentId: number) =>
-    useQuery({
-      queryKey: ['projectGroups', 'children', parentId],
-      queryFn: () => projectGroupService.getByParentId(parentId),
-    })
 
   const createMutation = useMutation({
     mutationFn: (data: CreateGroupRequest) => projectGroupService.create(data),
@@ -56,9 +56,6 @@ export const useProjectGroup = () => {
   })
 
   return {
-    getGroupById,
-    getRootGroups,
-    getChildGroups,
     create: createMutation.mutate,
     update: updateMutation.mutate,
     addMembers: addMembersMutation.mutate,

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { userService } from '@/services/userService'
+import type { AxiosError } from 'axios'
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('')
@@ -16,7 +17,7 @@ export default function RegisterPage() {
     onSuccess: () => {
       navigate('/login')
     },
-    onError: (err: any) => {
+    onError: (err: AxiosError<{ message?: string }>) => {
       setError(err.response?.data?.message || '注册失败')
     },
   })

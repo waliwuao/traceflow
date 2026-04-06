@@ -3,15 +3,20 @@ import { userService, type RegisterRequest, type UpdateUserRequest } from '@/ser
 import { useAuthStore } from '@/stores/authStore'
 import { useNavigate } from 'react-router-dom'
 
-export const useUser = () => {
-  const queryClient = useQueryClient()
-
+export const useUserProfile = () => {
   const profileQuery = useQuery({
     queryKey: ['user', 'profile'],
     queryFn: userService.getProfile,
     enabled: !!localStorage.getItem('token'),
   })
 
+  return {
+    profile: profileQuery.data?.data,
+    isLoading: profileQuery.isLoading,
+  }
+}
+
+export const useLogin = () => {
   const loginMutation = useMutation({
     mutationFn: userService.login,
     onSuccess: (response) => {
@@ -20,13 +25,29 @@ export const useUser = () => {
     },
   })
 
+  return {
+    login: loginMutation.mutate,
+    isLoginLoading: loginMutation.isPending,
+  }
+}
+
+export const useRegister = () => {
+  const navigate = useNavigate()
   const registerMutation = useMutation({
     mutationFn: (data: RegisterRequest) => userService.register(data),
     onSuccess: () => {
-      useNavigate()('/login')
+      navigate('/login')
     },
   })
 
+  return {
+    register: registerMutation.mutate,
+    isRegisterLoading: registerMutation.isPending,
+  }
+}
+
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient()
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateUserRequest }) => userService.update(id, data),
     onSuccess: (response) => {
@@ -36,13 +57,7 @@ export const useUser = () => {
   })
 
   return {
-    profile: profileQuery.data?.data,
-    isLoading: profileQuery.isLoading,
-    login: loginMutation.mutate,
-    register: registerMutation.mutate,
     updateUser: updateMutation.mutate,
-    isLoginLoading: loginMutation.isPending,
-    isRegisterLoading: registerMutation.isPending,
     isUpdateLoading: updateMutation.isPending,
   }
 }

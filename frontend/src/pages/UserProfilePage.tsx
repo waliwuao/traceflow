@@ -1,21 +1,16 @@
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { userService } from '@/services/userService'
-import { useActivity } from '@/hooks/useActivity'
+import { useYearActivity } from '@/hooks/useActivity'
+import type { ActivityTile } from '@/services/activityService'
 
 export default function UserProfilePage() {
   const { userId } = useParams<{ userId: string }>()
-  const { getYearActivity } = useActivity()
+  const activityQuery = useYearActivity(Number(userId))
 
   const userQuery = useQuery({
     queryKey: ['user', userId],
     queryFn: () => userService.getById(Number(userId)),
-    enabled: !!userId,
-  })
-
-  const activityQuery = useQuery({
-    queryKey: ['activity', 'user', userId],
-    queryFn: () => getYearActivity(Number(userId)),
     enabled: !!userId,
   })
 
@@ -24,6 +19,7 @@ export default function UserProfilePage() {
   }
 
   const user = userQuery.data?.data
+  const allTiles = activityQuery.data?.data?.months.flatMap((m) => m.tiles) || []
 
   return (
     <div className="mx-auto max-w-4xl space-y-8">
@@ -41,19 +37,19 @@ export default function UserProfilePage() {
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">活动记录</h2>
         <div className="rounded-lg border p-4">
-          <ActivityGraph tiles={activityQuery.data?.data?.months || []} />
+          <ActivityGraph tiles={allTiles} />
         </div>
       </section>
     </div>
   )
 }
 
-function ActivityGraph({ tiles }: { tiles: any[] }) {
+function ActivityGraph({ tiles }: { tiles: ActivityTile[] }) {
   return (
     <div className="overflow-x-auto">
       <div className="flex gap-1">
         {Array.from({ length: 365 }).map((_, i) => {
-          const tile = tiles.find((t: any) => t.date === i)
+          const tile = tiles.find((t: ActivityTile) => t.date === String(i))
           const intensity = tile?.count || 0
           const color =
             intensity === 0
