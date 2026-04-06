@@ -37,7 +37,7 @@ jobs:
       - name: Build Docker image (backend)
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
         run: |
-          docker build -t ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME_BE }}:${{ github.sha }} ./backend
+          docker build -t ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME_BE }}:${{ github.sha }} .
 
       - name: Push Docker image (backend)
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
@@ -85,7 +85,7 @@ jobs:
 
       - name: Build Docker image (frontend)
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-        run: docker build -t ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME_FE }}:${{ github.sha }} ./frontend
+        run: docker build -t ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME_FE }}:${{ github.sha }} .
 
       - name: Push Docker image (frontend)
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
