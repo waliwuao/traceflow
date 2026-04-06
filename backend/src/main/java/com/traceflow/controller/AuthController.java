@@ -11,9 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -42,11 +39,6 @@ public class AuthController {
         // Simple token: base64(userId:username:timestamp)
         String token = java.util.Base64.getEncoder()
                 .encodeToString((user.getId() + ":" + user.getUsername() + ":" + System.currentTimeMillis()).getBytes());
-
-        Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("userId", user.getId());
-        extraClaims.put("username", user.getUsername());
-        extraClaims.put("role", user.getRole().name());
 
         return ResponseEntity.ok(AuthResponse.builder()
                 .user(userResponse)

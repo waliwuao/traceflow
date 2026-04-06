@@ -2,11 +2,9 @@ import { useState } from 'react'
 import { useAuthStore } from '@/stores/authStore'
 import { userService } from '@/services/userService'
 import { useMutation } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
 
 export default function ProfilePage() {
   const { user, updateUser } = useAuthStore()
-  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     displayName: user?.displayName || '',
     bio: user?.bio || '',
